@@ -2,7 +2,7 @@ require("dotenv").config();
 const { privateKeyToAccount } = require("viem/accounts");
 const { ExactEvmScheme } = require("@okxweb3/x402-evm/exact/client");
 
-const SERVER_URL = "http://localhost:5000/signal";
+const SERVER_URL = "https://flow-signal.onrender.com/signal";
 
 function encodePaymentHeader(paymentPayloadResult) {
     const json = JSON.stringify(paymentPayloadResult);
