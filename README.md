@@ -1,6 +1,6 @@
-## Flow Signal
+# Flow Signal
 
-Flow Signal is a real-time, multi-factor market intelligence API for BTC-USDT, built as an **Agent Service Provider (ASP)** on the OKX.AI Agent-to-MCP (A2MCP) network. It's designed to be consumed by AI trading agents - not humans - and is monetized per-request using the OKX x402 Agent Payment Protocol, settled in USDC on X Layer.
+**Flow Signal** is a real-time, multi-factor market intelligence API for BTC-USDT, built as an **Agent Service Provider (ASP)** on the OKX.AI Agent-to-MCP (A2MCP) network. It's designed to be consumed by AI trading agents - not humans - and is monetized per-request using the OKX x402 Agent Payment Protocol, settled in USDC on X Layer.
 
 Instead of giving away raw market data, Flow Signal fuses four independent OKX data sources into a single weighted **Flow Score**, and sells access to that score on a pay-per-call basis.
 
@@ -60,7 +60,7 @@ A single indicator (like order book imbalance alone) is noisy and short-lived - 
 | Open interest trend | 20% | ~30s | Position buildup / unwind |
 | Liquidations | 20% | Real-time (WebSocket), 5-min rolling window | Forced-close cascades / squeeze pressure |
 
-This is intentionally transparent, simple math — not a black-box model — so any agent (or human) consuming the signal can understand exactly why a given score was produced.
+This is intentionally transparent, simple math - not a black-box model - so any agent (or human) consuming the signal can understand exactly why a given score was produced.
 
 ## Tech stack
 
@@ -170,13 +170,28 @@ The server starts polling funding rate and open interest, connects to the OKX or
 
 ## Testing the payment flow
 
-A standalone test client (`test-client.js`) is included, which acts as a paying agent: it requests `/signal`, receives the `402`, signs a payment authorization using a funded EVM wallet, and retries.
+`test-client.js` is included as a **reference implementation** of a paying agent — useful both for testing this service and as an example of how to consume any x402-protected endpoint in general. It requests `/signal`, receives the `402`, builds and signs a payment authorization with the OKX x402 client SDK, and retries with the signed payload attached.
 
 ```bash
 node test-client.js
 ```
 
-Requires a `TEST_BUYER_PRIVATE_KEY` in `.env`, funded with a small amount of USDC on X Layer.
+To run it, you'll need your own EVM wallet with a small amount of USDC on X Layer, referenced via a `TEST_BUYER_PRIVATE_KEY` variable in `.env`. This is intentionally a separate key from your Agentic Wallet (whose key can't be exported, by design) — generate one with any EVM wallet tool, fund it lightly, and use it purely for testing.
+
+**Never commit a real private key to `.env` or the repository.** The `.gitignore` already excludes `.env`; keep it that way.
+
+## Live endpoint
+
+A live instance is deployed at:
+
+```
+https://flow-signal.onrender.com/signal
+```
+
+Hitting this without a valid payment returns `402 Payment Required` with the current price and payment details. Two things to know before testing against it:
+
+- **Cold starts:** this runs on Render's free tier, which spins down after inactivity. The first request after idle time can take 50+ seconds to respond while the instance wakes up.
+- **Pricing:** the price currently set on this deployment is a low placeholder used during development/testing, not a finalized production price. Don't treat it as the intended long-term cost per call.
 
 ## Deployment
 
@@ -188,7 +203,7 @@ Registered on the OKX.AI Agent Marketplace as an A2MCP service via the `onchaino
 
 ## Disclaimer
 
-The underlying indicators — particularly the open-interest trend heuristic - are intentionally simplified for transparency and easy interpretability, and are not intended as financial advice or a standalone trading strategy. Signals are short-lived by nature (seconds to minutes) and should be treated as one input among several, not a complete system on their own.
+The underlying indicators — particularly the open-interest trend heuristic — are intentionally simplified for transparency and easy interpretability, and are not intended as financial advice or a standalone trading strategy. Signals are short-lived by nature (seconds to minutes) and should be treated as one input among several, not a complete system on their own.
 
 ## Status / Roadmap
 
