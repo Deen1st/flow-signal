@@ -30,6 +30,7 @@ function buildPaymentMiddleware() {
                     {
                         scheme: "exact",
                         network: NETWORK,
+                        
                         payTo: PAY_TO,
                         price: "$0.02", // price per call, tune as you like
                     },

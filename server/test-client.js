@@ -4,6 +4,11 @@ const { ExactEvmScheme } = require("@okxweb3/x402-evm/exact/client");
 
 const SERVER_URL = "https://flow-signal.onrender.com/signal";
 
+function decodePaymentRequiredHeader(headerValue) {
+    const json = Buffer.from(headerValue, "base64").toString("utf8");
+    return JSON.parse(json);
+}
+
 function encodePaymentHeader(paymentPayloadResult) {
     const json = JSON.stringify(paymentPayloadResult);
     return Buffer.from(json, "utf8").toString("base64");
@@ -26,7 +31,14 @@ async function main() {
         return;
     }
 
-    const paymentRequiredBody = await firstRes.json();
+    const paymentRequiredHeader = firstRes.headers.get("payment-required");
+    if (!paymentRequiredHeader) {
+        console.log("No payment-required header found. Headers were:");
+        console.log(Object.fromEntries(firstRes.headers.entries()));
+        return;
+    }
+
+    const paymentRequiredBody = decodePaymentRequiredHeader(paymentRequiredHeader);
     console.log("Payment requirements:", JSON.stringify(paymentRequiredBody, null, 2));
 
     const requirements = paymentRequiredBody.accepts[0];
@@ -37,6 +49,8 @@ async function main() {
         x402Version,
         requirements
     );
+
+    paymentPayloadResult.accepted = requirements;
 
     console.log("Signed payload:", JSON.stringify(paymentPayloadResult, null, 2));
 
@@ -50,6 +64,7 @@ async function main() {
     });
 
     console.log("Second response status:", secondRes.status);
+    console.log("Second response headers:", Object.fromEntries(secondRes.headers.entries()));
 
     const paymentResponseHeader = secondRes.headers.get("payment-response");
     if (paymentResponseHeader) {
@@ -59,8 +74,8 @@ async function main() {
         console.log("Settlement info:", decoded);
     }
 
-    const body = await secondRes.json();
-    console.log("Signal received:", body);
+    const rawBody = await secondRes.text();
+    console.log("Raw body:", rawBody);
 }
 
 main().catch((err) => {
