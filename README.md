@@ -203,7 +203,7 @@ Registered on the OKX.AI Agent Marketplace as an A2MCP service via the `onchaino
 
 ## Disclaimer
 
-The underlying indicators — particularly the open-interest trend heuristic — are intentionally simplified for transparency and easy interpretability, and are not intended as financial advice or a standalone trading strategy. Signals are short-lived by nature (seconds to minutes) and should be treated as one input among several, not a complete system on their own.
+The underlying indicators, particularly the open-interest trend heuristic, they are intentionally simplified for transparency and easy interpretability, and are not intended as financial advice or a standalone trading strategy. Signals are short-lived by nature (seconds to minutes) and should be treated as one input among several, not a complete system on their own.
 
 ## Status / Roadmap
 
